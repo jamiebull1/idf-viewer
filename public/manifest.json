@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Geomeppy Viewer",
+  "name": "Geomeppy Viewer",
   "icons": [
     {
       "src": "favicon.ico",
