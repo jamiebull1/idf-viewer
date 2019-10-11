@@ -1,96 +1,79 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Flexbox from "flexbox-react";
 import { MTLModel } from "react-3d-viewer";
-
+import { imgs } from "./imgs";
 import "./index.css";
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchValue: "",
-      imgs: [
-        "1ZoneDataCenterCRAC_wApproachTemp",
-        "1ZoneDataCenterCRAC_wPumpedDXCoolingCoil",
-        "1ZoneEvapCooler",
-        "1ZoneUncontrolled",
-        "1ZoneUncontrolled3SurfaceZone"
-      ],
-      viewerImg: "1ZoneDataCenterCRAC_wApproachTemp"
-    };
-  }
-  setViewerImg(title) {
-    this.setState({ viewerImg: title });
-  }
-  handleChange = event => {
-    this.setState({ searchValue: event.target.value });
-  };
-  renderThumb(img, idx) {
-    return (
-      <li className="thumb-nail">
-        <img
-          key={idx}
-          title={img}
-          alt={img}
-          src={require(`./assets/${img}/idf.png`)}
-          onClick={() => this.setViewerImg(img)}
-        />
-        <p className="thumb-text">{img}</p>
-      </li>
-    );
-  }
-  render() {
-    const thumbs = this.state.imgs.map((img, idx) => {
-      return contains(img, this.state.searchValue)
-        ? this.renderThumb(img, idx)
-        : "";
-    });
-    return (
-      <Flexbox flexDirection="row" minWidth="99vw">
-        <IDFPicker
-          searchValue={this.state.searchValue}
-          thumbs={thumbs}
-          handleChange={this.handleChange}
-        />
-        <IDFViewer img={this.state.viewerImg} />
-      </Flexbox>
-    );
-  }
+function App() {
+  const [searchValue, setSearchValue] = useState("");
+  const [viewerImg, setViewerImg] = useState(imgs[0]);
+  const thumbs = imgs.map((img, idx) => {
+    return contains(img, searchValue) ? Thumb({ img, idx, setViewerImg }) : "";
+  });
+  return (
+    <Flexbox flexDirection="row" minWidth="99vw">
+      <IDFPicker
+        searchValue={searchValue}
+        thumbs={thumbs}
+        setSearchValue={setSearchValue}
+      />
+      <IDFViewer img={viewerImg} />
+    </Flexbox>
+  );
+}
+
+function Thumb(props) {
+  return (
+    <li key={props.idx} className="thumb-nail">
+      <img
+        title={props.img}
+        alt={props.img}
+        src={require(`./assets/${props.img}/idf.png`)}
+        onClick={() => props.setViewerImg(props.img)}
+      />
+      <p className="thumb-text">{props.img}</p>
+    </li>
+  );
 }
 
 function contains(str, substr) {
+  // case-insensitive test of whether str contains substr
   return !substr || str.toLowerCase().includes(substr.toLowerCase());
 }
 
-function IDFPicker({ searchValue, handleChange, thumbs }) {
+function IDFPicker(props) {
   return (
     <div id="picker">
       <h2>IDF Picker</h2>
-      <input type="text" value={searchValue} onChange={handleChange} />
+      <input
+        type="text"
+        value={props.searchValue}
+        onChange={e => props.setSearchValue(e.target.value)}
+      />
       <div id="pickerScrollbox">
-        <ul>{thumbs}</ul>
+        <ul>{props.thumbs}</ul>
       </div>
     </div>
   );
 }
 
-function IDFViewer({ img }) {
+function IDFViewer(props) {
   return (
     <Flexbox flexDirection="column" minHeight="97vh">
-      <IDFImage img={img} />
-      <IDFData img={img} />
+      <IDFImage img={props.img} />
+      <IDFData img={props.img} />
     </Flexbox>
   );
 }
-function IDFImage({ img }) {
+function IDFImage(props) {
   return (
     <div>
-      <h2>{img} model</h2>
+      <h2>{props.img} model</h2>
       <MTLModel
-        key={img}
-        src={require(`./assets/${img}/idf.obj`)}
-        mtl={require(`./assets/${img}/idf.mtl`)}
+        key={props.img}
+        src={require(`./assets/${props.img}/idf.obj`)}
+        mtl={require(`./assets/${props.img}/idf.mtl`)}
         width={600}
         height={400}
         rotation={{ x: -45, y: 0, z: 0 }}
@@ -100,10 +83,10 @@ function IDFImage({ img }) {
   );
 }
 
-function IDFData({ img }) {
+function IDFData(props) {
   return (
     <div>
-      <h2>{img} IDF data</h2>
+      <h2>{props.img} IDF data</h2>
       <p>Lorem ipsem...</p>
     </div>
   );
